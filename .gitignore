@@ -91,3 +91,6 @@ ENV/
 # Kreft
 */.idea/workspace.xml
 */.idea/vcs.xml
+
+# Text files
+.txt

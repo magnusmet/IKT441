@@ -101,4 +101,4 @@ for i in range(10000):
     ant = ANT()
     ant.walk(a)
     ant.pheromones()
-    print i,getSum(ant.visitedEdges)
+    print(i,getSum(ant.visitedEdges))
