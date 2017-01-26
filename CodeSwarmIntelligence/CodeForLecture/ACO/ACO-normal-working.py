@@ -1,21 +1,13 @@
 import random
-
-MAXPHEROMONES = 100000
-MINPHEROMONES = 1
-bestScore = 0
-bestSolution = []
-
 class Node:
    def __init__(self,name):
         self.name = name
         self.edges = []
- 
 
    def rouletteWheelSimple(self):
         return random.sample(self.edges,1)[0]
 
    def rouletteWheel(self,visitedEdges,startNode):
-          #import pdb;pdb.set_trace()
           visitedNodes = [oneEdge.toNode for oneEdge in visitedEdges]
           viableEdges = [oneEdge for oneEdge in self.edges if not oneEdge.toNode in visitedNodes and oneEdge.toNode!=startNode]
           if not viableEdges: 
@@ -32,24 +24,16 @@ class Node:
               i += 1
           return selectedEdge
 
-    
-    
    def __repr__(self):
         return self.name
-    
+
 class Edge:
    def __init__(self,fromNode,toNode,cost):
        self.fromNode = fromNode
        self.toNode = toNode
        self.cost = cost
-       self.pheromones = MAXPHEROMONES
+       self.pheromones = 1
 
-
-   def checkPheromones(self):
-       if(self.pheromones>MAXPHEROMONES):
-           self.pheromones = MAXPHEROMONES
-       if(self.pheromones<MINPHEROMONES):
-           self.pheromones = MINPHEROMONES       
    def __repr__(self):
        return self.fromNode.name + "--(" + str(self.cost) + ")--" + self.toNode.name
 
@@ -75,22 +59,46 @@ edges = [
 #Make symetrical
 for oneEdge in edges[:]:
    edges.append(Edge(oneEdge.toNode,oneEdge.fromNode,oneEdge.cost))
+  
 
 #Assign to nodes
 for oneEdge in edges:
     for oneNode in nodes:
         if(oneEdge.fromNode==oneNode):
             oneNode.edges.append(oneEdge)
-            
-#Cost function
-def getSum(edges):
-    return sum(e.cost for e in edges)
-MAXCOST = getSum(edges)
+
 
 def checkAllNodesPresent(edges):
     visitedNodes = [edge.toNode for edge in edges]
     return set(nodes).issubset(visitedNodes)
 
+class Greedy:
+   def __init__(self):
+       self.visitedEdges = []   
+       self.visitedNodes = []
+
+   def walk(self,startNode):
+         currentNode = startNode
+         currentEdge = None
+         while(not checkAllNodesPresent(self.visitedEdges)):
+             possibleEdges = [(edge.cost,edge) for edge in currentNode.edges if edge.toNode not in self.visitedNodes]
+             possibleEdges.sort()
+             #import pdb;pdb.set_trace()
+             currentEdge = possibleEdges[0][1]
+             currentNode = currentEdge.toNode
+             self.visitedEdges.append(currentEdge)
+             self.visitedNodes.append(currentNode)
+             print currentNode,currentEdge
+
+print "Greedy"
+g = Greedy()
+g.walk(a)
+print "Cost:",sum([e.cost for e in g.visitedEdges])
+
+#Cost function
+def getSum(edges):
+    return sum(e.cost for e in edges)
+MAXCOST = getSum(edges)
 class ANT:
     def __init__(self):
         self.visitedEdges = []
@@ -100,21 +108,9 @@ class ANT:
         currentEdge = None
         while(not checkAllNodesPresent(self.visitedEdges)):
             currentEdge = currentNode.rouletteWheel(self.visitedEdges,startNode)
-            #currentEdge = currentNode.rouletteWheelSimple()
             currentNode = currentEdge.toNode 
             self.visitedEdges.append(currentEdge)
 
-    def pheromones2(self):
-        currentCost = getSum(self.visitedEdges)
-        if(currentCost<MAXCOST):
-            score = 1000**(1-float(currentCost)/MAXCOST) # Score function
-            global bestScore
-            global bestEdges
-            if(score>bestScore):
-                bestScore = score
-                bestEdges = self.visitedEdges
-            for oneEdge in bestEdges:
-                oneEdge.pheromones += score
 
     def pheromones(self):
         currentCost = getSum(self.visitedEdges)
@@ -123,18 +119,14 @@ class ANT:
             for oneEdge in self.visitedEdges:
                 oneEdge.pheromones += score
 
-def evaporate(edges):
-    for edge in edges:
-        edge.pheromones *= 0.99
-
-def checkAllEdges(edges):
-    for edge in edges:
-        edge.checkPheromones()               
-                
 for i in range(100000):
-    evaporate(edges)
     ant = ANT()
     ant.walk(a)
     ant.pheromones()
-    checkAllEdges(edges)
-    print(i,getSum(ant.visitedEdges))
+    print i,getSum(ant.visitedEdges)
+
+#Printing
+ant = ANT()
+ant.walk(a)
+for edge in ant.visitedEdges:
+    print edge,edge.pheromones                     
