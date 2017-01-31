@@ -1,5 +1,6 @@
 from math import radians, cos, sin, asin, sqrt
-from src.cities import getCoord
+from src.cities import get_coords
+
 
 def haversine(from_city, to_city):
     """
@@ -18,7 +19,8 @@ def haversine(from_city, to_city):
     km = 6367 * c
     return km
 
-def getDistance(from_city, to_city):
-    from_coord = getCoord(from_city)
-    to_coord = getCoord(to_city)
+
+def get_distance(from_city, to_city):
+    from_coord = get_coords(from_city)
+    to_coord = get_coords(to_city)
     return haversine(from_coord, to_coord)

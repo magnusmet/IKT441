@@ -1,10 +1,5 @@
-from src.aco import releaseAnts
-from src.cities import getCity
-from src.haversine import getDistance
+from src.cities import load_cities
+from src.aco import aco
 
-# from_city = getCity('oslo')
-# to_city = getCity('grimstad')
-
-releaseAnts('oslo', 'grimstad', 2)
-
-
+load_cities(filter_by_region=True)
+aco('oslo', 'grimstad', 2)
